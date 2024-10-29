@@ -21,7 +21,6 @@ function Player({ updateBackground }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
-  const progressRef = useRef(null);
 
   const song = songs[musicIndex];
 
@@ -31,21 +30,15 @@ function Player({ updateBackground }) {
       audioRef.current.load();
       updateBackground(song.background); // Update background when song changes
       setCurrentTime(0); // Reset currentTime to 0
-      if (progressRef.current) {
-        progressRef.current.style.width = '0%'; // Reset progress bar width to 0
-      }
+      setIsPlaying(false); // Reset play/pause button to play
     }
   }, [musicIndex, song.path, song.background, updateBackground]);
 
   useEffect(() => {
     const updateProgress = () => {
       if (audioRef.current) {
-        const { currentTime, duration } = audioRef.current;
-        setCurrentTime(currentTime);
-        setDuration(duration);
-        if (progressRef.current) {
-          progressRef.current.style.width = `${(currentTime / duration) * 100}%`;
-        }
+        setCurrentTime(audioRef.current.currentTime);
+        setDuration(audioRef.current.duration);
       }
     };
 
@@ -54,20 +47,6 @@ function Player({ updateBackground }) {
       audioElement.addEventListener('timeupdate', updateProgress);
       return () => {
         audioElement.removeEventListener('timeupdate', updateProgress);
-      };
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleError = () => {
-      console.error('Failed to load or play the audio');
-    };
-
-    const audioElement = audioRef.current;
-    if (audioElement) {
-      audioElement.addEventListener('error', handleError);
-      return () => {
-        audioElement.removeEventListener('error', handleError);
       };
     }
   }, []);
@@ -85,9 +64,12 @@ function Player({ updateBackground }) {
     const newIndex = (musicIndex + direction + songs.length) % songs.length;
     setMusicIndex(newIndex);
     setIsPlaying(false); // Reset play/pause button to play
-    if (progressRef.current) {
-      progressRef.current.style.width = '0%'; // Reset progress bar width to 0
-    }
+  };
+
+  const handleSliderChange = (e) => {
+    const newTime = e.target.value;
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   return (
@@ -98,7 +80,14 @@ function Player({ updateBackground }) {
       <h2 id="music-title">{song.displayName}</h2>
       <h3 id="music-artist">{song.artist}</h3>
       <div className="player-progress">
-        <div className="progress" ref={progressRef}></div>
+        <input
+          type="range"
+          min="0"
+          max={duration || 0}
+          value={currentTime}
+          onChange={handleSliderChange}
+          className="slider"
+        />
         <div className="music-duration">
           <span id="current-time">{formatTime(currentTime)}</span>
           <span id="duration">{formatTime(duration)}</span>
