@@ -28,9 +28,9 @@ function Player({ updateBackground }) {
     if (audioRef.current) {
       audioRef.current.src = song.path;
       audioRef.current.load();
-      updateBackground(song.background); // Update background when song changes
-      setCurrentTime(0); // Reset currentTime to 0
-      setIsPlaying(false); // Reset play/pause button to play
+      updateBackground(song.background); 
+      setCurrentTime(0); 
+      setIsPlaying(false); 
     }
   }, [musicIndex, song.path, song.background, updateBackground]);
 
