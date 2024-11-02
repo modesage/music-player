@@ -63,7 +63,7 @@ function Player({ updateBackground }) {
   const changeMusic = (direction) => {
     const newIndex = (musicIndex + direction + songs.length) % songs.length;
     setMusicIndex(newIndex);
-    setIsPlaying(false); // Reset play/pause button to play
+    setIsPlaying(false); 
   };
 
   const handleSliderChange = (e) => {
